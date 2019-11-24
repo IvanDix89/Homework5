@@ -181,9 +181,26 @@
 
 2. Создаем конфиги
 
+        cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/first.conf
+        cp /etc/httpd/conf/httpd.conf /etc/httpd/conf/second.conf
+
         # /etc/sysconfig/httpd-first
         OPTIONS=-f conf/first.conf
 
         # /etc/sysconfig/httpd-second
         OPTIONS=-f conf/second.conf
+        
+ Добавляем в conf/first.conf
+ 
+         PidFile        /var/run/httpd-first.pid
+         
+Добавляем в conf/second.conf
+         
+        PidFile         /var/run/httpd-second.pid
+        Listen 8080
+        
+3. Запускаем и проверяем.
 
+        systemctl start httpd@first
+        systemctl start httpd@second
+  ![Screenshot](3.png)       
