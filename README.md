@@ -150,6 +150,6 @@
                 Nov 24 12:33:21 lvm systemd[1]: Started Spawn-fcgi startup service by Otus.
                 Nov 24 12:33:21 lvm systemd[1]: Starting Spawn-fcgi startup service by Otus...
 
-
+ ![Screenshot](2.png)
 
  
