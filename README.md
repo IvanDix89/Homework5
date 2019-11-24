@@ -152,4 +152,38 @@
 
  ![Screenshot](2.png)
 
- 
+## 3. Дополнить юнит-файл apache httpd возможностью запустить несколько инстансов сервера с разными конфигами
+
+1. Копируем cp /usr/lib/systemd/system/httpd.service /etc/systemd/system/httpd@.service
+
+        [Unit]
+        Description=The Apache HTTP Server
+        After=network.target remote-fs.target nss-lookup.target
+        Documentation=man:httpd(8)
+        Documentation=man:apachectl(8)
+
+        [Service]
+        Type=notify
+        EnvironmentFile=/etc/sysconfig/httpd-%I
+        ExecStart=/usr/sbin/httpd $OPTIONS -DFOREGROUND
+        ExecReload=/usr/sbin/httpd $OPTIONS -k graceful
+        ExecStop=/bin/kill -WINCH ${MAINPID}
+        # We want systemd to give httpd some time to finish gracefully, but still want
+        # it to kill httpd after TimeoutStopSec if something went wrong during the
+        # graceful stop. Normally, Systemd sends SIGTERM signal right after the
+        # ExecStop, which would kill httpd. We are sending useless SIGCONT here to give
+        # httpd time to finish.
+        KillSignal=SIGCONT
+        PrivateTmp=true
+
+        [Install]
+        WantedBy=multi-user.target
+
+2. Создаем конфиги
+
+        # /etc/sysconfig/httpd-first
+        OPTIONS=-f conf/first.conf
+
+        # /etc/sysconfig/httpd-second
+        OPTIONS=-f conf/second.conf
+
