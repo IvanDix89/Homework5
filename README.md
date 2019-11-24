@@ -69,7 +69,87 @@
          
          
  ![Screenshot](1.png)
-         
-         
  
+ 
+ ## 2.Из epel установить spawn-fcgi и переписать init-скрипт на unit-файл. Имя сервиса должно также называться.
+ 
+ 1. Устанавливаем spawn-fcgi и необходимые для него пакеты 
+ 
+        yum install epel-release -y && yum install spawn-fcgi php php-cli mod_fcgid httpd -y
+         
+ 2. Раскомментируем строки с переменными в /etc/sysconfig/spawn-fcgi
+
+        # You must set some working options before the "spawn-fcgi" service will work.
+        # If SOCKET points to a file, then this file is cleaned up by the init script.
+        #
+        # See spawn-fcgi(1) for all possible options.
+        #
+        # Example :
+        SOCKET=/var/run/php-fcgi.sock
+        OPTIONS="-u apache -g apache -s $SOCKET -S -M 0600 -C 32 -F 1 -P /var/run/spawn-fcgi.pid -- /usr/bin/php-cgi"
+        
+ 3. Создаем юнит файл /etc/systemd/system/spawn-fcgi.service
+ 
+        [Unit]
+        Description=Spawn-fcgi startup service by Otus
+        After=network.target
+
+        [Service]
+        Type=simple
+        PIDFile=/var/run/spawn-fcgi.pid
+        EnvironmentFile=/etc/sysconfig/spawn-fcgi
+        ExecStart=/usr/bin/spawn-fcgi -n $OPTIONS
+        KillMode=process
+
+        [Install]
+        WantedBy=multi-user.target
+        
+  4. Тестируем
+  
+                systemctl start spawn-fcgi
+                systemctl status spawn-fcgi
+                ● spawn-fcgi.service - Spawn-fcgi startup service by Otus
+                   Loaded: loaded (/etc/systemd/system/spawn-fcgi.service; disabled; vendor preset: disabled)
+                   Active: active (running) since Sun 2019-11-24 12:33:21 UTC; 8s ago
+                 Main PID: 2261 (php-cgi)
+                   CGroup: /system.slice/spawn-fcgi.service
+                           ├─2261 /usr/bin/php-cgi
+                           ├─2262 /usr/bin/php-cgi
+                           ├─2263 /usr/bin/php-cgi
+                           ├─2264 /usr/bin/php-cgi
+                           ├─2265 /usr/bin/php-cgi
+                           ├─2266 /usr/bin/php-cgi
+                           ├─2267 /usr/bin/php-cgi
+                           ├─2268 /usr/bin/php-cgi
+                           ├─2269 /usr/bin/php-cgi
+                           ├─2270 /usr/bin/php-cgi
+                           ├─2271 /usr/bin/php-cgi
+                           ├─2272 /usr/bin/php-cgi
+                           ├─2273 /usr/bin/php-cgi
+                           ├─2274 /usr/bin/php-cgi
+                           ├─2275 /usr/bin/php-cgi
+                           ├─2276 /usr/bin/php-cgi
+                           ├─2277 /usr/bin/php-cgi
+                           ├─2278 /usr/bin/php-cgi
+                           ├─2279 /usr/bin/php-cgi
+                           ├─2280 /usr/bin/php-cgi
+                           ├─2281 /usr/bin/php-cgi
+                           ├─2282 /usr/bin/php-cgi
+                           ├─2283 /usr/bin/php-cgi
+                           ├─2284 /usr/bin/php-cgi
+                           ├─2285 /usr/bin/php-cgi
+                           ├─2286 /usr/bin/php-cgi
+                           ├─2287 /usr/bin/php-cgi
+                           ├─2288 /usr/bin/php-cgi
+                           ├─2289 /usr/bin/php-cgi
+                           ├─2290 /usr/bin/php-cgi
+                           ├─2291 /usr/bin/php-cgi
+                           ├─2292 /usr/bin/php-cgi
+                           └─2293 /usr/bin/php-cgi
+
+                Nov 24 12:33:21 lvm systemd[1]: Started Spawn-fcgi startup service by Otus.
+                Nov 24 12:33:21 lvm systemd[1]: Starting Spawn-fcgi startup service by Otus...
+
+
+
  
